@@ -29,20 +29,15 @@ async def test_datasette_yaml(tmp_path_factory):
     )
     app = Datasette([str(db_path)]).app()
     async with httpx.AsyncClient(app=app) as client:
-        response = await client.get("http://localhost/test/dogs.yaml")
+        response = await client.get("http://localhost/test/dogs.datatable")
         assert response.status_code == 200
-        assert (
-            response.text.strip()
-            == textwrap.dedent(
-                """
-        - id: 1
-          name: Cleo
-          age: 5
-          weight: 48.4
-        - id: 2
-          name: Pancakes
-          age: 4
-          weight: 33.2
-        """
-            ).strip()
-        )
+        assert response.json()
+        assert response.json() == {
+            "draw": 0,
+            "recordsTotal": 2,
+            "recordsFiltered": 2,
+            "data": [
+                {"id": 1, "name": "Cleo", "age": 5, "weight": 48.4},
+                {"id": 2, "name": "Pancakes", "age": 4, "weight": 33.2},
+            ],
+        }
