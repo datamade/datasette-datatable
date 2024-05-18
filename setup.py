@@ -13,8 +13,8 @@ def get_long_description():
 
 
 setup(
-    name="datasette-yaml",
-    description="Export Datasette records as YAML",
+    name="datasette-datatables",
+    description="Export Datasette records as DataTables",
     long_description=get_long_description(),
     long_description_content_type="text/markdown",
     author="Simon Willison",
@@ -26,9 +26,9 @@ setup(
     },
     license="Apache License, Version 2.0",
     version=VERSION,
-    packages=["datasette_yaml"],
-    entry_points={"datasette": ["yaml = datasette_yaml"]},
+    packages=["datasette_datatables"],
+    entry_points={"datasette": ["datatable = datasette_datatables"]},
     install_requires=["datasette"],
     extras_require={"test": ["pytest", "pytest-asyncio", "httpx", "sqlite-utils"]},
-    tests_require=["datasette-yaml[test]"],
+    tests_require=["datasette-datatables[test]"],
 )
