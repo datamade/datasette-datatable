@@ -38,7 +38,6 @@ async def datatable_database(datasette, scope, send, receive):
     orderings = defaultdict(dict)
 
     for param, value in params.items():
-
         if param.startswith(("column", "order")):
             if value.isnumeric():
                 value = int(value)
@@ -51,7 +50,6 @@ async def datatable_database(datasette, scope, send, receive):
             index = int(index_str)
 
             if param.startswith("column"):
-
                 if len(rest) == 1:
                     (flag,) = rest
                     columns[index][flag] = value

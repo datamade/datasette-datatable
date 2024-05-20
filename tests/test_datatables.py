@@ -126,3 +126,4 @@ async def test_datasette_datatables(tmp_path_factory):
                 {"id": 1, "name": "Cleo", "age": 5, "weight": 48.4},
             ],
         }
+
