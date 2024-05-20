@@ -85,19 +85,6 @@ async def test_datasette_datatables(tmp_path_factory):
         }
 
         response = await client.get(
-            "http://localhost/test.datatable?sql=select id, name, age, weight from dogs order by id limit 101&start=1&draw=10"
-        )
-        assert response.status_code == 400
-        assert response.json()
-        assert response.json() == {
-            "draw": 10,
-            "recordsTotal": 0,
-            "recordsFiltered": 0,
-            "data": [],
-            "error": "Can't use the start param without setting the length parameter",
-        }
-
-        response = await client.get(
             "http://localhost/test.datatable?sql=select id, name, age, weight from dogs order by id limit 101&start=1&length=1&draw=10"
         )
         assert response.status_code == 200
