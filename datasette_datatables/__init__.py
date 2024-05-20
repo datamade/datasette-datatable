@@ -1,5 +1,5 @@
-import urllib.parse
 import re
+import urllib.parse
 from collections import defaultdict
 
 from datasette import hookimpl
