@@ -29,6 +29,8 @@ async def datatable_database(datasette, scope, send, receive):
 
     from datasette.views.database import DatabaseView
 
+    scope["url_route"]["kwargs"]["format"] = "datatable"
+
     original_request = Request(scope, receive)
     params = {k: original_request.args[k] for k in original_request.args.keys()}
 
@@ -113,10 +115,10 @@ def render_datatable(rows, sql, data, request):
 def register_routes():
     return [
         (
-            r"/(?P<database>[^\/\.]+)/(?P<table>[^\/\.]+)(\.datatable)?$",
+            r"/(?P<database>[^\/\.]+)/(?P<table>[^\/\.]+)\.datatable$",
             datatable_table,
         ),
-        (r"/(?P<database>[^\/\.]+)(\.(?P<format>\w+))?$", datatable_database),
+        (r"/(?P<database>[^\/\.]+)\.datatable$", datatable_database),
     ]
 
 
