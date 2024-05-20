@@ -1,33 +1,25 @@
-# datasette-yaml
+# datasette-datatable
 
-[![PyPI](https://img.shields.io/pypi/v/datasette-yaml.svg)](https://pypi.org/project/datasette-yaml/)
-[![Changelog](https://img.shields.io/github/v/release/simonw/datasette-yaml?include_prereleases&label=changelog)](https://github.com/simonw/datasette-yaml/releases)
-[![Tests](https://github.com/simonw/datasette-yaml/workflows/Test/badge.svg)](https://github.com/simonw/datasette-yaml/actions?query=workflow%3ATest)
-[![License](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](https://github.com/simonw/datasette-yaml/blob/main/LICENSE)
-
-Export Datasette records as YAML
+Export Datasette records in a form that the [DataTables library](https://datatables.net/) understands.
 
 ## Installation
 
-Install this plugin in the same environment as Datasette.
+Install this plugin in the same environment as Datasette. Note that this plugin is built
+against the development version of datasette, not the one released on PyPi.
 
-    $ datasette install datasette-yaml
+    $ datasette install datasette-datatable
 
 ## Usage
 
-Having installed this plugin, every table and query will gain a new `.yaml` export link.
+Having installed this plugin, every table and query will gain a new `.datatable` export link.
 
-You can also construct these URLs directly: `/dbname/tablename.yaml`
-
-## Demo
-
-The plugin is running on [covid-19.datasettes.com](https://covid-19.datasettes.co/) - for example [/covid/latest_ny_times_counties_with_populations.yaml](https://covid-19.datasettes.com/covid/latest_ny_times_counties_with_populations.yaml)
+You can also construct these URLs directly: `/dbname/tablename.datatable`
 
 ## Development
 
 To set up this plugin locally, first checkout the code. Then create a new virtual environment:
 
-    cd datasette-yaml
+    cd datasette-datatable
     python3 -mvenv venv
     source venv/bin/activate
 
@@ -37,6 +29,7 @@ Or if you are using `pipenv`:
 
 Now install the dependencies and tests:
 
+    pip install https://github.com/simonw/datasette/archive/refs/heads/main.zip
     pip install -e '.[test]'
 
 To run the tests:

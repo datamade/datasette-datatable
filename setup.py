@@ -27,9 +27,9 @@ setup(
     },
     license="Apache License, Version 2.0",
     version=VERSION,
-    packages=["datasette_datatables"],
-    entry_points={"datasette": ["datatable = datasette_datatables"]},
+    packages=["datasette_datatable"],
+    entry_points={"datasette": ["datatable = datasette_datatable"]},
     install_requires=["datasette"],
     extras_require={"test": ["pytest", "pytest-asyncio", "httpx", "sqlite-utils"]},
-    tests_require=["datasette-datatables[test]"],
+    tests_require=["datasette-datatable[test]"],
 )
