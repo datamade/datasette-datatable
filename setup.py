@@ -14,17 +14,12 @@ def get_long_description():
 
 
 setup(
-    name="datasette-datatables",
-    description="Export Datasette records as DataTables",
+    name="datasette-datatable",
+    description="Export Datasette records as a DataTable",
     long_description=get_long_description(),
     long_description_content_type="text/markdown",
-    author="Simon Willison",
-    url="https://github.com/simonw/datasette-yaml",
-    project_urls={
-        "Issues": "https://github.com/simonw/datasette-yaml/issues",
-        "CI": "https://github.com/simonw/datasette-yaml/actions",
-        "Changelog": "https://github.com/simonw/datasette-yaml/releases",
-    },
+    author="Forest Gregg",
+    url="https://github.com/datamade/datasette-datatable",
     license="Apache License, Version 2.0",
     version=VERSION,
     packages=["datasette_datatable"],
