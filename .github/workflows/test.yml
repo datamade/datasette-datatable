@@ -23,6 +23,7 @@ jobs:
           ${{ runner.os }}-pip-
     - name: Install dependencies
       run: |
+        pip install https://github.com/fgregg/datasette/archive/refs/heads/no_limit_csv_publish.zip
         pip install -e '.[test]'
     - name: Run tests
       run: |
