@@ -3,6 +3,7 @@ import urllib.parse
 from collections import defaultdict
 
 from datasette import hookimpl
+from datasette.utils import validate_sql_select
 from datasette.utils.asgi import Request, Response
 
 
@@ -17,6 +18,7 @@ def _parse_params(params):
 
     for param, value in params.items():
         if param.startswith(("column", "order")):
+
             if value.isnumeric():
                 value = int(value)
             elif value == "true":
@@ -34,7 +36,8 @@ def _parse_params(params):
                 elif len(rest) == 2:
                     flag, option = rest
                     assert flag == "search"
-                    columns[index]["search"][flag] = value
+                    if option == "value":
+                        columns[index]["search"] = value
 
             if param.startswith("order"):
                 (flag,) = rest
@@ -47,6 +50,30 @@ def adjust_query(wrapped_query, params):
 
     columns, orderings = _parse_params(params)
 
+    search_clauses = []
+
+    global_search_clauses = []
+    if search_value := params.get("search[value]"):
+        for field in columns.values():
+            if field["searchable"]:
+                global_search_clauses.append(f"{field['data']} LIKE '%{search_value}%'")
+
+    if global_search_clauses:
+        search_clauses.append(f"({' OR '.join(global_search_clauses)})")
+
+    column_search_clauses = []
+    for field in columns.values():
+        if (query := field.get("search")) and field["searchable"]:
+            column_search_clauses.append(f"{field['data']} LIKE '%{query}%'")
+
+    if column_search_clauses:
+        search_clauses.append(" AND ".join(column_search_clauses))
+
+    if search_clauses:
+        wrapped_query += f" WHERE {' AND '.join(search_clauses)}"
+
+    filtered_query = wrapped_query
+
     order_clauses = []
     for key in sorted(orderings.keys()):
         ordering = orderings[key]
@@ -55,7 +82,7 @@ def adjust_query(wrapped_query, params):
                 f"Column {columns[ordering]['column']} that you are trying to order on has not been specified as orderable"
             )
 
-        order_clauses.append(f"{ordering['column'] + 1} {ordering['dir']}")
+        order_clauses.append(f"{columns[ordering['column']]['data']} {ordering['dir']}")
 
     if order_clauses:
         wrapped_query += f" ORDER BY {', '.join(order_clauses)}"
@@ -69,7 +96,7 @@ def adjust_query(wrapped_query, params):
         # check that start is an integer
         wrapped_query += f" offset {offset}"
 
-    return wrapped_query
+    return wrapped_query, filtered_query
 
 
 async def datatable_table(datasette, request, scope, send, receive):
@@ -100,8 +127,13 @@ async def datatable_database(datasette, scope, send, receive):
     original_request = Request(scope, receive)
     params = {k: original_request.args[k] for k in original_request.args.keys()}
 
+    original_query = params["sql"]
+    validate_sql_select(original_query)
+
     try:
-        wrapped_query = adjust_query(f"select * from ({params['sql']}) as og", params)
+        wrapped_query, filtered_query = adjust_query(
+            f"select * from ({original_query}) as og", params
+        )
     except InvalidQuery as exc:
         return Response.json(
             {
@@ -114,6 +146,9 @@ async def datatable_database(datasette, scope, send, receive):
             status=400,
         )
 
+    params["original_sql"] = original_query
+    params["filtered_sql"] = filtered_query
+
     params["sql"] = wrapped_query
 
     scope["query_string"] = urllib.parse.urlencode(params).encode("latin-1")
@@ -122,12 +157,25 @@ async def datatable_database(datasette, scope, send, receive):
     return await DatabaseView()(request=new_request, datasette=datasette)
 
 
-def render_datatable(rows, sql, data, request):
+async def render_datatable(sql, rows, request, datasette, database):
+
+    original_query = request.args.get("original_sql")
+    total_result = await datasette.execute(
+        database, f"select count(*) as total from ({original_query}) as og"
+    )
+    total = total_result.first()["total"]
+
+    filtered_query = request.args.get("filtered_sql")
+    filtered_result = await datasette.execute(
+        database, f"select count(*) as filtered from ({filtered_query}) as og"
+    )
+    filtered = filtered_result.first()["filtered"]
+
     data = [dict(r) for r in rows]
     response = {
         "draw": int(request.args.get("draw", 0)),
-        "recordsTotal": len(data),
-        "recordsFiltered": len(data),
+        "recordsTotal": total,
+        "recordsFiltered": filtered,
         "data": data,
     }
 
