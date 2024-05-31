@@ -21,7 +21,7 @@
     <script type="text/javascript" language="javascript" class="init">
       $(document).ready(function () {
         $("#example tfoot th").each(function () {
-          var title = $(this).text();
+          const title = $(this).text();
           $(this).html(
             '<input type="text" placeholder="Search ' + title + '" />',
           );
@@ -39,24 +39,31 @@
             { data: "name" },
             { data: "occupation" },
             { data: "employer" },
-            { data: "city_state_zip" }
+            { data: "city_state_zip" },
           ],
           order: [[1, "desc"]],
           processing: true,
           serverSide: true,
           searching: true,
-          ajax: "https://puddle.bunkum.us/il_campaign_disclosure.datatable?sql=select%0D%0A++committees.name+as+committee_name%2C%0D%0A++strftime(%27%25Y-%25m-%25d%27%2C+received_date)+as+received_date%2C%0D%0A++amount%2C%0D%0A++case%0D%0A++++when+first_name+is+not+null+then+first_name+||+%27+%27+||+last_name%0D%0A++++else+last_name%0D%0A++end+as+name%2C%0D%0A++occupation%2C%0D%0A++employer%2C%0D%0A++receipts.city+||+%27%2C+%27+||+receipts.state+||+%27+%27+||+receipts.zipcode+as+city_state_zip%0D%0Afrom%0D%0A++receipts%0D%0A++inner+join+committees+on+committee_id+%3D+committees.id%0D%0Awhere%0D%0A++received_date+%3E%3D+%272023-01-01%27%0D%0A++and+archived+%3D+0",
+          ajax: "https://puddle.bunkum.us/il_campaign_disclosure/donation.datatable",
           initComplete: function () {
+            const delay = 500;
+
             // Apply the search
             this.api()
               .columns()
               .every(function () {
-                var that = this;
+                const that = this;
+                const searchInput = $("input", this.footer());
+                let searchTimeout;
 
-                $("input", this.footer()).on("keyup change clear", function () {
-                  if (that.search() !== this.value) {
-                    that.search(this.value).draw();
-                  }
+                searchInput.on("keyup change clear", function () {
+                  clearTimeout(searchTimeout);
+                  searchTimeout = setTimeout(function () {
+                    if (that.search() !== searchInput.val()) {
+                      that.search(searchInput.val()).draw();
+                    }
+                  }, delay);
                 });
               });
           },
