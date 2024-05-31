@@ -9,7 +9,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: [3.6, 3.7, 3.8]
+        python-version: [3.8, 3.9, "3.10", "3.11", "3.12"]
     steps:
     - uses: actions/checkout@v2
     - name: Set up Python ${{ matrix.python-version }}
@@ -31,13 +31,16 @@ jobs:
         pytest
   deploy:
     runs-on: ubuntu-latest
+    environment: release
     needs: [test]
+    permissions:
+      id-token: write
     steps:
     - uses: actions/checkout@v2
     - name: Set up Python
       uses: actions/setup-python@v2
       with:
-        python-version: '3.8'
+        python-version: '3.12'
     - uses: actions/cache@v2
       name: Configure pip caching
       with:
@@ -48,11 +51,7 @@ jobs:
     - name: Install dependencies
       run: |
         pip install setuptools wheel twine
-    - name: Publish
-      env:
-        TWINE_USERNAME: __token__
-        TWINE_PASSWORD: ${{ secrets.PYPI_TOKEN }}
-      run: |
-        python setup.py sdist bdist_wheel
-        twine upload dist/*
-
+    - name: Build distros
+      run: python setup.py sdist bdist_wheel
+    - name: Publish package distributions to PyPI
+      uses: pypa/gh-action-pypi-publish@release/v1        
