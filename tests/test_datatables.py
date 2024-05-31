@@ -145,3 +145,23 @@ async def test_datasette_datatables(tmp_path_factory):
             "http://localhost/test.datatable?sql=drop table dogs"
         )
         assert response.status_code == 500
+
+        response = await client.get(
+            "http://localhost/test.datatable?sql=select * from cats"
+        )
+        assert response.status_code == 500
+
+        response = await client.get(
+            "http://localhost/test.datatable?sql=select * from dogs where height = 1"
+        )
+        assert response.status_code == 500
+
+        response = await client.get(
+            "http://localhost/test.datatable?sql=select * from dogs where height = 1"
+        )
+        assert response.status_code == 500
+
+        response = await client.get(
+            "http://localhost/test.datatable?sql=select id, name, age, weight from dogs order by id limit 101&draw=10&columns[1][data]=nickname&columns[1][searchable]=true&columns[1][search][value]=pan"
+        )
+        assert response.status_code == 500
