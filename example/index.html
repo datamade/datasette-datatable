@@ -47,12 +47,17 @@
               render: function (data, type, row, meta) {
                 if (type === "display") {
                   const encoded_doc_id = encodeURIComponent(row.filed_doc_id);
-                  const path =
-                    row.doc_name === "A-1"
-                      ? `A1List.aspx?FiledDocID=${encoded_doc_id}&ContributionType=wOGh3QTPfKqV2YWjeRmjTeStk426RfVK&Archived=Gl5sibpnFrQ%3d`
-                      : row.doc_name === "Final"
-                        ? `D2Semiannual.aspx?id=${encoded_doc_id}`
-                        : `D2Quarterly.aspx?id=${encoded_doc_id}`;
+                  let path = "";
+                  switch (row.doc_name) {
+                    case "A-1":
+                      path = `A1List.aspx?FiledDocID=${encoded_doc_id}&ContributionType=wOGh3QTPfKqV2YWjeRmjTeStk426RfVK&Archived=Gl5sibpnFrQ%3d`;
+                      break;
+                    case "Final":
+                      path = `D2Semiannual.aspx?id=${encoded_doc_id}`;
+                      break;
+                    default:
+                      path = `D2Quarterly.aspx?id=${encoded_doc_id}`;
+                  }
                   return `<a href="https://www.elections.il.gov/CampaignDisclosure/${path}">${row.filed_doc_id}</a>`;
                 }
               },
