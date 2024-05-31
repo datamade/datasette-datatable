@@ -11,7 +11,7 @@ async def test_plugin_is_installed():
         response = await client.get("http://localhost/-/plugins.json")
         assert 200 == response.status_code
         installed_plugins = {p["name"] for p in response.json()}
-        assert "datasette-datatables" in installed_plugins
+        assert "datasette-datatable" in installed_plugins
 
 
 @pytest.mark.asyncio
